@@ -1,0 +1,49 @@
+/*
+plugins {
+  id "net.praqma.luci" version "0.4.2"
+}
+*/
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies { classpath 'net.praqma.luci:luci-gradlePlugin:0.4.2' }
+}
+apply plugin: 'net.praqma.luci'
+
+luci {
+  machineFactories {
+    zetta {
+      tenantName = 'Circus'
+    }
+  }
+
+  
+  hosts {
+    TheCircus {
+      dockerMachine(factory: machineFactories.zetta)
+    }
+    TheCircusLocal {
+      dockerMachine(factory: machineFactories.virtualBox)
+    }
+  }
+
+  boxes {
+    
+    circus {
+      dockerHost = hosts.TheCircus
+      service('jenkins') {
+        staticSlave('worker1') {
+          dockerImage = 'luci/staticslave-docker:0.4'
+        }
+
+        seedJob {
+          name = "BOOTSTRAP SEED JOB"
+          jobDslFiles(file('jobDsl.groovy'))
+        }
+      }      
+    }
+    
+  }
+}
